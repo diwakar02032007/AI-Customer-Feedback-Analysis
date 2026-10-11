@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics &amp; Telemetry &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="page-greeting-banner mb-3">
+    <div>
+        <h1 class="page-title">Analytics &amp; Customer Sentiment</h1>
+        <p class="page-subtitle">Deep telemetry across multilingual sentiment trends, category performance, and emotional drivers.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('analysis.admin_insights') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-lightning-charge me-1"></i> AI Insights View
+        </a>
+    </div>
+</div>
+
+<!-- Analytics Filters Bar -->
+<div class="card card-3d p-3 mb-4">
+    <form method="GET" action="{{ url_for('analysis.analytics_view') }}" class="row g-2 align-items-end">
+        <div class="col-md-4 col-lg-3">
+            <label class="form-label small mb-1 text-muted fw-semibold">Date Window</label>
+            <select class="form-select form-select-sm" name="days" id="analyticsDaysSelect" onchange="this.form.submit()">
+                <option value="7" {% if selected_days == 7 %}selected{% endif %}>Last 7 Days</option>
+                <option value="14" {% if selected_days == 14 %}selected{% endif %}>Last 14 Days</option>
+                <option value="30" {% if selected_days == 30 or not selected_days %}selected{% endif %}>Last 30 Days</option>
+                <option value="90" {% if selected_days == 90 %}selected{% endif %}>Last Quarter (90 Days)</option>
+                <option value="365" {% if selected_days == 365 %}selected{% endif %}>Past Year</option>
+            </select>
+        </div>
+        <div class="col-md-8 col-lg-9 d-flex justify-content-end align-items-center">
+            <span class="badge bg-light text-muted border">
+                <i class="bi bi-broadcast text-primary me-1"></i> Continuous Telemetry Ingestion Active
+            </span>
+        </div>
+    </form>
+</div>
+
+<!-- Sentiment Timeline Trend Chart Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-3d p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Customer Sentiment Trend Over Time</h6>
+                    <small class="text-muted">Temporal trajectory across English, Tamil, and Tanglish submissions</small>
+                </div>
+                <span class="badge bg-light text-muted border">Live Metric</span>
+            </div>
+            <div style="height: 320px; position: relative;">
+                <canvas id="analyticsTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Distribution & Aspect-Based Sentiment Charts -->
+<div class="row g-4 mb-4">
+    <!-- Star Rating Distribution -->
+    <div class="col-lg-6">
+        <div class="card card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Star Rating Distribution</h6>
+                    <small class="text-muted">1 to 5 Stars volume breakdown</small>
+                </div>
+            </div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="analyticsRatingChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aspect-Based Sentiment -->
+    <div class="col-lg-6">
+        <div class="card card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Aspect-Based Sentiment Breakdown</h6>
+                    <small class="text-muted">Compliments vs Complaints per feature</small>
+                </div>
+            </div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="analyticsAspectChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emotion Breakdown & Priority Severity Charts -->
+<div class="row g-4 mb-4">
+    <!-- Emotion Breakdown Donut Chart -->
+    <div class="col-lg-6">
+        <div class="card card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Affective Emotion Breakdown</h6>
+                    <small class="text-muted">Psychological state distribution across customer voices</small>
+                </div>
+            </div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="analyticsEmotionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Priority Tickets Bar Chart -->
+    <div class="col-lg-6">
+        <div class="card card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Complaint Priority Triage</h6>
+                    <small class="text-muted">Volume by severity classification</small>
+                </div>
+            </div>
+            <div style="height: 280px; position: relative;">
+                <canvas id="analyticsPriorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Language Distribution & Category Performance Matrix -->
+<div class="row g-4 mb-4">
+    <!-- Multilingual Language Split -->
+    <div class="col-lg-4">
+        <div class="card card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Language Distribution</h6>
+                    <small class="text-muted">English vs தமிழ் vs Tanglish</small>
+                </div>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="analyticsLanguageChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departmental Category Performance Matrix -->
+    <div class="col-lg-8">
+        <div class="card card-3d border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold text-dark mb-0">Category Performance &amp; Health Matrix</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Volume</th>
+                            <th>Avg Rating</th>
+                            <th>Positive</th>
+                            <th>Negative</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if category_dist %}
+                            {% for c in category_dist %}
+                            <tr>
+                                <td class="fw-semibold text-dark">{{ c.category }}</td>
+                                <td>{{ c.count }}</td>
+                                <td><span class="star-display">★ {{ "%.1f"|format(c.avg_rating or 0) }}</span></td>
+                                <td><span class="badge badge-positive">{{ c.positive_count }}</span></td>
+                                <td><span class="badge badge-negative">{{ c.negative_count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No category telemetry available.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Operational Insights: Top Complaints vs Most Appreciated Aspects -->
+<div class="row g-4">
+    <!-- Top Complaints -->
+    <div class="col-lg-6">
+        <div class="card card-3d border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold text-danger mb-0"><i class="bi bi-exclamation-circle-fill me-2"></i>Top Complaint Categories</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Negative Tickets</th>
+                            <th>Avg Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_complaints %}
+                            {% for c in top_complaints %}
+                            <tr>
+                                <td class="fw-semibold text-dark">{{ c.category }}</td>
+                                <td><span class="badge badge-negative">{{ c.negative_count }} issues</span></td>
+                                <td><span class="star-display">★ {{ "%.1f"|format(c.avg_rating or 0) }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="3" class="text-center py-4 text-muted">No negative complaints recorded.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Most Appreciated Aspects -->
+    <div class="col-lg-6">
+        <div class="card card-3d border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold text-success mb-0"><i class="bi bi-award-fill me-2"></i>Most Appreciated Features &amp; Aspects</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Positive Mentions</th>
+                            <th>Avg Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_aspects %}
+                            {% for a in top_aspects %}
+                            <tr>
+                                <td class="fw-semibold text-primary">{{ a.aspect }}</td>
+                                <td><span class="badge badge-positive">{{ a.positive_count }} compliments</span></td>
+                                <td class="fw-bold text-success">+{{ "%.2f"|format(a.avg_sentiment or 0.8) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="3" class="text-center py-4 text-muted">No aspect praise recorded.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

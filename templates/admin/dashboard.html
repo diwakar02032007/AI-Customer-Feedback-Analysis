@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Intelligence Overview &bull; InsightAI Console{% endblock %}
+
+{% block content %}
+<!-- 1. Top Header Section: Required Exact Titles & Controls -->
+<div class="hero-banner-3d p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary text-white">Executive AI Dashboard</span>
+                <span class="badge bg-white text-secondary border">Telemetry v2.1</span>
+            </div>
+            <h1 class="page-title mb-1">Customer Intelligence Overview</h1>
+            <p class="page-subtitle text-secondary">
+                Understand customer sentiment, discover emerging issues, and make better decisions.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ url_for('feedback.admin_feedbacks') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-chat-square-quote me-1"></i> Feedback Directory
+            </a>
+            <a href="{{ url_for('report.export_csv') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-download me-1"></i> Export Telemetry
+            </a>
+            <a href="{{ url_for('analysis.admin_insights') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-lightning-charge me-1"></i> AI Insights View
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 2. 6 Data-Driven KPI Cards Grid (Strictly Real Data, No Fake Percentages) -->
+<div class="row g-3 mb-4">
+    <!-- KPI 1: Total Feedback -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-indigo">
+            <div class="kpi-header">
+                <span class="kpi-label">Total Feedback</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-chat-left-text-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number">{{ kpis.total_feedback }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend positive"><i class="bi bi-check2"></i> Active</span>
+                <span class="kpi-comparison-text">All channels</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI 2: Positive Feedback -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-emerald">
+            <div class="kpi-header">
+                <span class="kpi-label">Positive Feedback</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number text-success">{{ kpis.positive_feedback }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend positive"><i class="bi bi-pie-chart-fill"></i> {{ "%.1f"|format(kpis.positive_feedback / kpis.total_feedback * 100) if kpis.total_feedback > 0 else 0 }}%</span>
+                <span class="kpi-comparison-text">of volume</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI 3: Neutral Feedback -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-slate">
+            <div class="kpi-header">
+                <span class="kpi-label">Neutral Feedback</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-dash-circle-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number text-secondary">{{ kpis.neutral_feedback }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend neutral"><i class="bi bi-percent"></i> {{ "%.1f"|format(kpis.neutral_feedback / kpis.total_feedback * 100) if kpis.total_feedback > 0 else 0 }}%</span>
+                <span class="kpi-comparison-text">of volume</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI 4: Negative Feedback -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-rose">
+            <div class="kpi-header">
+                <span class="kpi-label">Negative Feedback</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-hand-thumbs-down-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number text-danger">{{ kpis.negative_feedback }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend negative"><i class="bi bi-exclamation"></i> {{ "%.1f"|format(kpis.negative_feedback / kpis.total_feedback * 100) if kpis.total_feedback > 0 else 0 }}%</span>
+                <span class="kpi-comparison-text">dissatisfied</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI 5: Average Rating -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-amber">
+            <div class="kpi-header">
+                <span class="kpi-label">Average Rating</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number text-warning">
+                {{ "%.1f"|format(kpis.avg_rating or 0.0) }} <span class="fs-6 text-muted fw-normal">/ 5</span>
+            </div>
+            <div class="kpi-footer">
+                <span class="kpi-trend positive">CSAT {{ kpis.csat_score }}%</span>
+                <span class="kpi-comparison-text">NPS {{ kpis.nps_score }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI 6: High-Priority Complaints -->
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card-v2 kpi-rose">
+            <div class="kpi-header">
+                <span class="kpi-label">High-Priority</span>
+                <div class="kpi-icon-circle">
+                    <i class="bi bi-shield-exclamation"></i>
+                </div>
+            </div>
+            <div class="kpi-metric-number text-danger">{{ kpis.high_priority_complaints }}</div>
+            <div class="kpi-footer">
+                <span class="kpi-trend negative"><i class="bi bi-bell-fill"></i> Critical</span>
+                <span class="kpi-comparison-text">Immediate SLA</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Primary Charts Row: Sentiment Trend (Line) & Sentiment Distribution (Donut) -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Sentiment Trends Over Time -->
+    <div class="col-lg-8">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Sentiment Trends Over Time</h5>
+                    <small class="text-muted">Daily trajectory across positive, neutral, and negative feedback</small>
+                </div>
+                <span class="badge bg-light text-muted border">Temporal Analysis</span>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="dashboardTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Sentiment Distribution Donut -->
+    <div class="col-lg-4">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Sentiment Distribution</h5>
+                    <small class="text-muted">Proportion of satisfaction sentiment</small>
+                </div>
+                <span class="badge bg-light text-muted border">Polarity Split</span>
+            </div>
+            <div style="height: 300px; position: relative;">
+                <canvas id="dashboardSentimentDistChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Secondary Charts Row: Category Distribution, Rating Distribution & Aspect-Based Sentiment -->
+<div class="row g-4 mb-4">
+    <!-- Chart 3: Feedback Category Distribution -->
+    <div class="col-md-6 col-xl-4">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Category Distribution</h5>
+                    <small class="text-muted">Feedback volume by service domain</small>
+                </div>
+                <span class="badge bg-light text-muted border">Departments</span>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="dashboardCategoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Rating Distribution (1 to 5 Stars) -->
+    <div class="col-md-6 col-xl-4">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Rating Distribution</h5>
+                    <small class="text-muted">Customer rating breakdown (1 to 5 Stars)</small>
+                </div>
+                <span class="badge bg-light text-muted border">CSAT Stars</span>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="dashboardRatingChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 5: Aspect-Based Sentiment Analysis -->
+    <div class="col-md-12 col-xl-4">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Aspect-Based Sentiment</h5>
+                    <small class="text-muted">Feature satisfaction (Praise vs Complaints)</small>
+                </div>
+                <span class="badge bg-light text-muted border">Granular ABSA</span>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="dashboardAspectChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. Tertiary Charts Row: Customer Emotion & Priority Distribution -->
+<div class="row g-4 mb-4">
+    <!-- Chart 6: Customer Emotion Distribution -->
+    <div class="col-lg-6">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Customer Emotion Distribution</h5>
+                    <small class="text-muted">Detected affective states (Joy, Anger, Sadness, Fear, Neutral)</small>
+                </div>
+                <span class="badge bg-light text-muted border">Emotion NLP</span>
+            </div>
+            <div style="height: 250px; position: relative;">
+                <canvas id="dashboardEmotionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 7: Priority Severity Distribution -->
+    <div class="col-lg-6">
+        <div class="chart-card-3d">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Priority Distribution</h5>
+                    <small class="text-muted">Urgency classification breakdown</small>
+                </div>
+                <span class="badge bg-light text-muted border">Triage Matrix</span>
+            </div>
+            <div style="height: 250px; position: relative;">
+                <canvas id="dashboardPriorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. Operational Intelligence: Top Complaints, Most Appreciated Aspects & Emerging Issues -->
+<div class="row g-4 mb-4">
+    <!-- Top Complaint Categories -->
+    <div class="col-lg-4">
+        <div class="card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-danger mb-0">
+                    <i class="bi bi-shield-slash-fill me-2"></i>Top Complaint Categories
+                </h6>
+                <span class="badge badge-negative">Pain Points</span>
+            </div>
+            {% if top_complaints %}
+                <div class="d-flex flex-column gap-3">
+                    {% for c in top_complaints %}
+                    <div class="p-3 bg-light rounded-3 border-start border-3 border-danger">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark">{{ c.category }}</span>
+                            <span class="badge badge-negative">{{ c.negative_count }} issues</span>
+                        </div>
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span>Average Rating:</span>
+                            <strong class="text-warning">★ {{ "%.1f"|format(c.avg_rating or 1.0) }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted small">No negative complaint categories found.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Most Appreciated Aspects -->
+    <div class="col-lg-4">
+        <div class="card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-success mb-0">
+                    <i class="bi bi-award-fill me-2"></i>Most Appreciated Aspects
+                </h6>
+                <span class="badge badge-positive">Strengths</span>
+            </div>
+            {% if top_aspects %}
+                <div class="d-flex flex-column gap-3">
+                    {% for a in top_aspects %}
+                    <div class="p-3 bg-light rounded-3 border-start border-3 border-success">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark">{{ a.aspect }}</span>
+                            <span class="badge badge-positive">{{ a.positive_count }} mentions</span>
+                        </div>
+                        <div class="small text-muted d-flex justify-content-between">
+                            <span>Sentiment Polarity:</span>
+                            <strong class="text-success">+{{ "%.2f"|format(a.avg_sentiment or 0.8) }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted small">No positive aspect data recorded.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Emerging Issues & AI Recommendations -->
+    <div class="col-lg-4">
+        <div class="card-3d p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-primary mb-0">
+                    <i class="bi bi-lightbulb-fill text-primary me-2"></i>AI Strategic Recommendations
+                </h6>
+                <span class="badge bg-primary-subtle text-primary">Live NLP</span>
+            </div>
+            {% if recommendations %}
+                <div class="d-flex flex-column gap-3">
+                    {% for rec in recommendations %}
+                    <div class="p-3 bg-white rounded-3 border border-start border-3 border-primary shadow-xs">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">{{ rec.category }}</span>
+                            <span class="badge badge-{{ rec.priority }}" style="font-size: 0.65rem;">{{ rec.priority | upper }}</span>
+                        </div>
+                        <p class="small text-dark mb-0 fw-medium" style="line-height: 1.5;">
+                            {{ rec.recommendation }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted small">All systems performing within optimal thresholds.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 7. High-Priority Escalations Quick-Triage Section -->
+{% if high_priority_feedbacks %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card-3d p-4 border-start border-4 border-danger">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold text-danger mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Urgent Escalations Requiring Operational Triage
+                    </h5>
+                    <small class="text-muted">High and critical customer feedback tickets flagged by automated sentiment analysis</small>
+                </div>
+                <a href="{{ url_for('feedback.admin_feedbacks') }}?priority=critical" class="btn btn-outline-danger btn-sm">
+                    View All Critical Tickets &rarr;
+                </a>
+            </div>
+
+            <div class="row g-3">
+                {% for hp in high_priority_feedbacks %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="triage-item h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-dark small">{{ hp.customer_name }}</span>
+                            <span class="badge badge-{{ hp.priority }}">{{ hp.priority | upper }}</span>
+                        </div>
+                        <div class="text-secondary small text-truncate mb-2" style="font-size: 0.85rem;">
+                            "{{ hp.feedback_text }}"
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                            <span class="text-muted" style="font-size: 0.75rem;">{{ hp.category }} &bull; ★ {{ hp.rating }}</span>
+                            <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2" style="font-size: 0.75rem;" onclick="openFeedbackModal({{ hp.id }})">
+                                Inspect Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 8. Recent Feedback Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card-3d">
+            <div class="card-header bg-white py-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">Recent Customer Feedback</h5>
+                    <small class="text-muted">Latest submissions parsed through multilingual NLP classification</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('feedback.admin_feedbacks') }}" class="btn btn-primary btn-sm">
+                        View Feedback Directory <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Feedback Voice</th>
+                            <th>Rating</th>
+                            <th>Sentiment</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Submitted On</th>
+                            <th class="text-end">Inspection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_feedbacks %}
+                            {% for f in recent_feedbacks %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-initials">
+                                            {{ (f.customer_name or 'U')[:1] | upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ f.customer_name }}</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Customer Ticket #{{ f.id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="max-width: 320px;">
+                                    <div class="text-truncate fw-medium text-dark">{{ f.feedback_text }}</div>
+                                    {% if f.summary %}
+                                    <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ f.summary }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="star-display">★ {{ f.rating }}</span>
+                                </td>
+                                <td>
+                                    {% if f.sentiment == 'positive' %}
+                                        <span class="badge badge-positive">Positive</span>
+                                    {% elif f.sentiment == 'negative' %}
+                                        <span class="badge badge-negative">Negative</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">Neutral</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ f.category }}</span>
+                                </td>
+                                <td>
+                                    {% if f.priority == 'critical' %}
+                                        <span class="badge badge-critical">Critical</span>
+                                    {% elif f.priority == 'high' %}
+                                        <span class="badge badge-high">High</span>
+                                    {% elif f.priority == 'medium' %}
+                                        <span class="badge badge-medium">Medium</span>
+                                    {% else %}
+                                        <span class="badge badge-low">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ f.created_at | datetime }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="openFeedbackModal({{ f.id }})" aria-label="Inspect feedback #{{ f.id }}">
+                                        <i class="bi bi-eye me-1"></i> Inspect
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <div class="empty-state-box">
+                                        <div class="empty-icon-circle"><i class="bi bi-inbox"></i></div>
+                                        <h6 class="fw-bold text-dark">No feedback records found</h6>
+                                        <p class="text-muted small">Submit feedback or import a dataset to see analytics.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container for Feedback Inspection Drawer -->
+<div class="modal fade" id="feedbackDetailModal" tabindex="-1" aria-labelledby="modalInspectionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-xl">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon-box" style="width: 32px; height: 32px; font-size: 0.95rem;">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="modalInspectionTitle">Customer Intelligence Inspection</h5>
+                        <small class="text-muted" style="font-size: 0.75rem;">Natural Language Pipeline Analysis &amp; Triage</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4" id="feedbackModalBody">
+                <!-- Dynamically loaded by feedback.js -->
+            </div>
+
+            <form id="feedbackUpdateForm" method="POST" action="">
+                <div class="modal-footer bg-light">
+                    <div class="row g-2 w-100 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0 text-muted">Status</label>
+                            <select class="form-select form-select-sm" id="modalStatusSelect" name="status">
+                                <option value="new">New</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="spam">Flag Spam</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0 text-muted">Priority</label>
+                            <select class="form-select form-select-sm" id="modalPrioritySelect" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small mb-0 text-muted">Admin Note</label>
+                            <input type="text" class="form-control form-control-sm" id="modalAdminNotes" name="admin_notes" placeholder="Action taken or notes...">
+                        </div>
+                        <div class="col-md-2 text-end pt-3">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

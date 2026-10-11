@@ -1,0 +1,31 @@
+text,sentiment,category,priority,emotion,aspect,is_spam,language
+"The user interface is amazingly fast and intuitive. Best software update so far!",positive,Usability/UI,low,joy,UI/UX,0,English
+"Navigation is buttery smooth and responsive. Really love the modern dark mode theme.",positive,Usability/UI,low,joy,UI/UX,0,English
+"Checkout page crashes every time I click pay. Money got debited but order failed!",negative,Billing/Pricing,critical,anger,Pricing,0,English
+"Charged twice for single subscription renewal. Immediate refund required!",negative,Billing/Pricing,critical,anger,Pricing,0,English
+"Support executive Priya was exceptionally polite and helped resolve my query in minutes.",positive,Customer Support,low,joy,Customer Support,0,English
+"Support is totally unresponsive. Waiting on ticket #4432 for 5 days with zero replies.",negative,Customer Support,high,anger,Customer Support,0,English
+"Delivery arrived in under 24 hours in pristine condition. Excellent packaging.",positive,Delivery/Speed,low,joy,Delivery/Speed,0,English
+"Courier took 9 days to deliver and the box was completely crushed. Terrible service.",negative,Delivery/Speed,high,sadness,Delivery/Speed,0,English
+"Product quality is top notch. Solid build, durable materials, feels premium in hand.",positive,Product Quality,low,joy,Product Quality,0,English
+"The item stopped working after only two days. Cheap plastic and poor soldering.",negative,Product Quality,high,anger,Product Quality,0,English
+"Pricing is reasonable compared to competitors. Average features for standard price.",neutral,Billing/Pricing,medium,neutral,Pricing,0,English
+"The app works fine for standard tasks, nothing special but reliable enough.",neutral,General,low,neutral,General,0,English
+"CLICK HERE FOR FREE BITCOIN 1000 DOLLARS BONUS WINNER CLAIM NOW HTTP://SPAM.XYZ",neutral,General,low,neutral,General,1,English
+"BUY CHEAP ROLEX WATCHES DISCOUNT 90% VISIT WWW.FAKESHOP.NET TODAY ONLY",neutral,General,low,neutral,General,1,English
+"App romba slow-va irukku. Login panna romba neram aaguthu.",negative,Usability/UI,high,sadness,Features/Performance,0,Tanglish
+"Product quality super-ah irukku. Romba nalla build quality.",positive,Product Quality,low,joy,Product Quality,0,Tanglish
+"Delivery mattum konjam fast panna nalla irukkum. Romba late aaiduchu.",negative,Delivery/Speed,medium,sadness,Delivery/Speed,0,Tanglish
+"Customer care call edukkave maatengranga. Romba mosamana support.",negative,Customer Support,high,anger,Customer Support,0,Tanglish
+"Super app bro! Payment process romba easy and fast-ah mudinjidhu.",positive,Billing/Pricing,low,joy,Pricing,0,Tanglish
+"Price romba jaasthi aana features avlo worth illa.",negative,Billing/Pricing,medium,sadness,Pricing,0,Tanglish
+"வாடிக்கையாளர் சேவை மிகவும் அருமை. உடனடியாக பதில் கிடைத்தது.",positive,Customer Support,low,joy,Customer Support,0,Tamil
+"பொருளின் தரம் மிக மோசம். வாங்கிய இரண்டு நாட்களிலேயே உடைந்து விட்டது.",negative,Product Quality,critical,anger,Product Quality,0,Tamil
+"பயன்படுத்த எளிமையாகவும் மிக விரைவாகவும் வேலை செய்கிறது. வாழ்த்துகள்!",positive,Usability/UI,low,joy,UI/UX,0,Tamil
+"பணம் பிடித்தம் செய்யப்பட்டு விட்டது ஆனால் ஆர்டர் பதிவாகவில்லை. பணத்தை திருப்பித் தரவும்.",negative,Billing/Pricing,critical,anger,Pricing,0,Tamil
+"டெலிவரி சரியான நேரத்தில் கிடைத்தது. பேக்கிங் அருமை.",positive,Delivery/Speed,low,joy,Delivery/Speed,0,Tamil
+"சேவை திருப்திகரமாக உள்ளது. கூடுதல் வசதிகள் தேவை.",neutral,General,low,neutral,General,0,Tamil
+"Feature requests: please add export to excel and dark mode toggle.",neutral,General,low,neutral,UI/UX,0,English
+"Account got locked without any warning and urgent project is stuck! Fix immediately!",negative,Customer Support,critical,anger,Customer Support,0,English
+"Decent platform overall with acceptable turnaround time.",neutral,General,low,neutral,General,0,English
+"The new analytics dashboard provides crystal clear business insights. Great job team!",positive,Usability/UI,low,joy,UI/UX,0,English

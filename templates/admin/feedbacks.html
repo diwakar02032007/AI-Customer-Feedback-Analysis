@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback Management &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="page-greeting-banner mb-3">
+    <div>
+        <h1 class="page-title">Customer Feedback Directory</h1>
+        <p class="page-subtitle">Inspect, filter, triage, and resolve incoming customer voice tickets.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importCsvModal">
+            <i class="bi bi-file-earmark-arrow-up me-1"></i> Import CSV
+        </button>
+        <a href="{{ url_for('report.export_csv', search=search, sentiment=sentiment, category=category, priority=priority, status=status, rating=rating, date_from=date_from, date_to=date_to) }}" class="btn btn-primary btn-sm" title="Export current filtered list to CSV">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Filtered CSV
+        </a>
+    </div>
+</div>
+
+<!-- Refined Filters Card -->
+<div class="card card-3d p-3 mb-4">
+    <form method="GET" action="{{ url_for('feedback.admin_feedbacks') }}" class="row g-2 align-items-end">
+        <!-- Search -->
+        <div class="col-12 col-md-4 col-lg-3">
+            <label class="form-label small mb-1 text-muted fw-semibold">Search Keywords</label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-start-0" name="search" value="{{ search or '' }}" placeholder="Name, email, keywords...">
+            </div>
+        </div>
+
+        <!-- Sentiment Filter -->
+        <div class="col-6 col-md-2 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Sentiment</label>
+            <select class="form-select form-select-sm" name="sentiment" aria-label="Filter by sentiment">
+                <option value="all">All Sentiments</option>
+                <option value="positive" {% if sentiment == 'positive' %}selected{% endif %}>Positive</option>
+                <option value="neutral" {% if sentiment == 'neutral' %}selected{% endif %}>Neutral</option>
+                <option value="negative" {% if sentiment == 'negative' %}selected{% endif %}>Negative</option>
+            </select>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Category</label>
+            <select class="form-select form-select-sm" name="category" aria-label="Filter by category">
+                <option value="all">All Categories</option>
+                <option value="Product Quality" {% if category == 'Product Quality' %}selected{% endif %}>Product Quality</option>
+                <option value="Customer Support" {% if category == 'Customer Support' %}selected{% endif %}>Customer Support</option>
+                <option value="Billing/Pricing" {% if category == 'Billing/Pricing' %}selected{% endif %}>Billing / Pricing</option>
+                <option value="Delivery/Speed" {% if category == 'Delivery/Speed' %}selected{% endif %}>Delivery / Speed</option>
+                <option value="Usability/UI" {% if category == 'Usability/UI' %}selected{% endif %}>Usability / UI</option>
+                <option value="General" {% if category == 'General' %}selected{% endif %}>General</option>
+            </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Priority</label>
+            <select class="form-select form-select-sm" name="priority" aria-label="Filter by priority">
+                <option value="all">All Priorities</option>
+                <option value="critical" {% if priority == 'critical' %}selected{% endif %}>Critical</option>
+                <option value="high" {% if priority == 'high' %}selected{% endif %}>High</option>
+                <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="low" {% if priority == 'low' %}selected{% endif %}>Low</option>
+            </select>
+        </div>
+
+        <!-- Rating Filter -->
+        <div class="col-6 col-md-2 col-lg-1">
+            <label class="form-label small mb-1 text-muted fw-semibold">Rating</label>
+            <select class="form-select form-select-sm" name="rating" aria-label="Filter by rating">
+                <option value="all">All</option>
+                <option value="5" {% if rating == '5' %}selected{% endif %}>★ 5</option>
+                <option value="4" {% if rating == '4' %}selected{% endif %}>★ 4</option>
+                <option value="3" {% if rating == '3' %}selected{% endif %}>★ 3</option>
+                <option value="2" {% if rating == '2' %}selected{% endif %}>★ 2</option>
+                <option value="1" {% if rating == '1' %}selected{% endif %}>★ 1</option>
+            </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Status</label>
+            <select class="form-select form-select-sm" name="status" aria-label="Filter by review status">
+                <option value="all">All Statuses</option>
+                <option value="new" {% if status == 'new' %}selected{% endif %}>New</option>
+                <option value="under_review" {% if status == 'under_review' %}selected{% endif %}>Under Review</option>
+                <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="spam" {% if status == 'spam' %}selected{% endif %}>Spam</option>
+            </select>
+        </div>
+
+        <!-- Date Range: From -->
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Date From</label>
+            <input type="date" class="form-control form-control-sm" name="date_from" value="{{ date_from or '' }}" aria-label="Date from">
+        </div>
+
+        <!-- Date Range: To -->
+        <div class="col-6 col-md-3 col-lg-2">
+            <label class="form-label small mb-1 text-muted fw-semibold">Date To</label>
+            <input type="date" class="form-control form-control-sm" name="date_to" value="{{ date_to or '' }}" aria-label="Date to">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="col-12 col-md-6 col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm flex-grow-1" title="Apply Filters">
+                <i class="bi bi-funnel me-1"></i> Filter
+            </button>
+            <a href="{{ url_for('feedback.admin_feedbacks') }}" class="btn btn-outline-secondary btn-sm" title="Clear Filters">
+                <i class="bi bi-x-circle"></i> Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Feedback Table Card -->
+<div class="card card-3d border-0 shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Feedback Content</th>
+                    <th>Rating</th>
+                    <th>Category</th>
+                    <th>Lang</th>
+                    <th>Sentiment</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if data.feedbacks %}
+                    {% for f in data.feedbacks %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-initials flex-shrink-0">
+                                    {{ (f.customer_name or 'U')[:1] | upper }}
+                                </div>
+                                <div class="text-truncate" style="max-width: 150px;">
+                                    <div class="fw-bold text-dark text-truncate">{{ f.customer_name }}</div>
+                                    <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ f.customer_email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="max-width: 280px;">
+                            <div class="text-truncate fw-medium text-dark">{{ f.feedback_text }}</div>
+                            {% if f.summary %}
+                            <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ f.summary }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="star-display">★ {{ f.rating }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ f.category }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary-subtle text-secondary">{{ f.language }}</span>
+                        </td>
+                        <td>
+                            {% if f.sentiment == 'positive' %}
+                                <span class="badge badge-positive">Positive</span>
+                            {% elif f.sentiment == 'negative' %}
+                                <span class="badge badge-negative">Negative</span>
+                            {% else %}
+                                <span class="badge badge-neutral">Neutral</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if f.priority == 'critical' %}
+                                <span class="badge badge-critical">Critical</span>
+                            {% elif f.priority == 'high' %}
+                                <span class="badge badge-high">High</span>
+                            {% elif f.priority == 'medium' %}
+                                <span class="badge badge-medium">Medium</span>
+                            {% else %}
+                                <span class="badge badge-low">Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ f.status | status_badge }}">{{ f.status | replace('_', ' ') | capitalize }}</span>
+                        </td>
+                        <td class="small text-muted text-nowrap">{{ f.created_at | datetime }}</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <button class="btn btn-outline-primary btn-sm" onclick="openFeedbackModal({{ f.id }})" title="Quick AI Inspection">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <a href="{{ url_for('feedback.admin_feedback_detail', feedback_id=f.id) }}" class="btn btn-outline-secondary btn-sm" title="Full Record Page">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center py-5">
+                            <div class="empty-state-box">
+                                <div class="empty-icon-circle"><i class="bi bi-search"></i></div>
+                                <h6 class="fw-bold text-dark">No feedback matched your filter criteria</h6>
+                                <p class="text-muted small">Try adjusting your keywords, sentiment, rating, or date parameters.</p>
+                                <a href="{{ url_for('feedback.admin_feedbacks') }}" class="btn btn-outline-secondary btn-sm mt-2">Clear Filters</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    {% if data.total_pages > 1 %}
+    <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="small text-muted">
+            Showing {{ data.feedbacks | length }} of {{ data.total }} items (Page {{ data.page }} of {{ data.total_pages }})
+        </span>
+        <nav aria-label="Feedback table pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if not data.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('feedback.admin_feedbacks', page=data.prev_num, search=search, sentiment=sentiment, category=category, priority=priority, status=status, rating=rating, date_from=date_from, date_to=date_to) }}">Previous</a>
+                </li>
+                {% for p in range(1, data.total_pages + 1) %}
+                    {% if p >= data.page - 2 and p <= data.page + 2 %}
+                    <li class="page-item {% if p == data.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('feedback.admin_feedbacks', page=p, search=search, sentiment=sentiment, category=category, priority=priority, status=status, rating=rating, date_from=date_from, date_to=date_to) }}">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not data.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('feedback.admin_feedbacks', page=data.next_num, search=search, sentiment=sentiment, category=category, priority=priority, status=status, rating=rating, date_from=date_from, date_to=date_to) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Container for Feedback Inspection -->
+<div class="modal fade" id="feedbackDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-xl">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon-box" style="width: 28px; height: 28px; font-size: 0.85rem;">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0">Customer Intelligence Inspection</h5>
+                        <small class="text-muted" style="font-size: 0.75rem;">Natural Language Pipeline Analysis</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4" id="feedbackModalBody">
+                <!-- Dynamically loaded by feedback.js -->
+            </div>
+
+            <form id="feedbackUpdateForm" method="POST" action="">
+                <div class="modal-footer bg-light">
+                    <div class="row g-2 w-100 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0 text-muted">Status</label>
+                            <select class="form-select form-select-sm" id="modalStatusSelect" name="status">
+                                <option value="new">New</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="spam">Flag Spam</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0 text-muted">Priority</label>
+                            <select class="form-select form-select-sm" id="modalPrioritySelect" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small mb-0 text-muted">Admin Note</label>
+                            <input type="text" class="form-control form-control-sm" id="modalAdminNotes" name="admin_notes" placeholder="Action taken or notes...">
+                        </div>
+                        <div class="col-md-2 text-end pt-3">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for CSV Batch Ingestion -->
+<div class="modal fade" id="importCsvModal" tabindex="-1" aria-labelledby="importCsvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-xl">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon-box" style="width: 32px; height: 32px; font-size: 0.95rem;">
+                        <i class="bi bi-file-earmark-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="importCsvModalLabel">Import Customer Feedback CSV</h5>
+                        <small class="text-muted">Batch ingestion with automated NLP pipeline</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('feedback.admin_import_csv') }}" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <p class="small text-secondary mb-3">
+                        Upload a UTF-8 encoded <code>.csv</code> file. Each feedback row will be automatically analyzed by the multilingual NLP engine (sentiment score, emotion, aspect, priority triage) and logged in the activity audit trail. Duplicate submissions will be safely detected and skipped.
+                    </p>
+                    
+                    <div class="p-3 bg-light rounded-3 border mb-3 small">
+                        <span class="fw-semibold text-dark d-block mb-1">Expected CSV Column Headers:</span>
+                        <code class="text-primary d-block mb-1">customer_name, customer_email, feedback_text, rating, category</code>
+                        <span class="text-muted" style="font-size: 0.75rem;">(Recognizes synonyms: name, email, feedback, score, comments)</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label small fw-semibold">Select CSV File (Max 5MB)</label>
+                        <input class="form-control" type="file" id="csv_file" name="csv_file" accept=".csv" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-upload me-1"></i> Start Batch Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

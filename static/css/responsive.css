@@ -1,0 +1,197 @@
+/* ========================================================
+   InsightAI - Modern SaaS Responsive System
+   Supports 1920x1080, 1440x900, 1366x768, 1280x800, 1024x768,
+   and mobile screens 768px, 480px, 430px, 390px, 375px
+   ======================================================== */
+
+/* Large Desktop screens (1440px and up) */
+@media (min-width: 1440px) {
+    .dashboard-content {
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 2.25rem 2.5rem;
+    }
+}
+
+/* Laptops (1024px to 1366px) */
+@media (max-width: 1366px) {
+    .dashboard-content {
+        padding: 1.75rem 1.5rem;
+    }
+
+    .kpi-card-v2 {
+        padding: 1.2rem 1.25rem;
+    }
+
+    .kpi-metric-number {
+        font-size: 1.85rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .dashboard-content {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+/* Tablet & Mobile Breakpoint (<= 992px) */
+@media (max-width: 992px) {
+    /* Mobile / Tablet Sidebar Drawer */
+    .dashboard-sidebar {
+        transform: translateX(-100%);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+        z-index: 1040;
+    }
+
+    .dashboard-sidebar.show {
+        transform: translateX(0);
+    }
+
+    .dashboard-main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .dashboard-topbar {
+        padding: 0.75rem 1.25rem;
+    }
+
+    .topbar-search {
+        display: none;
+    }
+
+    .page-greeting-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .page-title {
+        font-size: 1.625rem;
+    }
+}
+
+/* Tablets (<= 768px) */
+@media (max-width: 768px) {
+    html {
+        font-size: 15px; /* Slight scale adaptation while maintaining readability */
+    }
+
+    .dashboard-content {
+        padding: 1.25rem 1rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem; /* 24px mobile heading */
+    }
+
+    .kpi-metric-number {
+        font-size: 1.75rem;
+    }
+
+    .table th, .table td {
+        padding: 0.75rem 0.85rem;
+        font-size: 0.875rem;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    /* Form control touch target height */
+    .form-control, .form-select {
+        min-height: 44px;
+        font-size: 0.9375rem;
+    }
+
+    .btn:not(.btn-sm) {
+        min-height: 44px;
+    }
+}
+
+/* Mobile Phones (<= 480px, including 430px, 390px, 375px) */
+@media (max-width: 480px) {
+    .dashboard-topbar {
+        padding: 0.65rem 0.85rem;
+    }
+
+    .page-title {
+        font-size: 1.45rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .kpi-card-v2 {
+        padding: 1.15rem;
+    }
+
+    .kpi-metric-number {
+        font-size: 1.65rem;
+    }
+
+    /* Only specific primary action buttons should expand on mobile */
+    .btn-mobile-block {
+        width: 100% !important;
+    }
+
+    /* Fix table horizontal overflow cleanly */
+    .table-responsive {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .table-responsive table {
+        min-width: 680px; /* Ensures table columns don't compress onto each other */
+    }
+
+    /* Touch targets */
+    .btn, .nav-link, .form-select, .form-control {
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        min-height: 38px;
+    }
+
+    /* Mobile offcanvas navigation icon */
+    .sidebar-nav .nav-link i {
+        font-size: 1.35rem; /* 22-26px mobile navigation icon */
+    }
+
+    .sidebar-header {
+        padding: 1rem 1.15rem;
+    }
+
+    .sidebar-body {
+        padding: 1rem 0.5rem;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 0.35rem;
+    }
+    
+    .modal-header, .modal-body, .modal-footer {
+        padding: 1rem;
+    }
+}
+
+/* Extra small devices (<= 375px) */
+@media (max-width: 375px) {
+    .page-title {
+        font-size: 1.35rem;
+    }
+
+    .kpi-metric-number {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-content {
+        padding: 1rem 0.75rem;
+    }
+}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}My Feedback History &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="page-greeting-banner mb-3">
+    <div>
+        <h1 class="page-title">My Feedback History</h1>
+        <p class="page-subtitle">Track your previous customer feedback submissions and operational review statuses.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('feedback.submit') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Submit New Feedback
+        </a>
+    </div>
+</div>
+
+<div class="card card-3d border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th># ID</th>
+                    <th>Rating</th>
+                    <th>Feedback Snippet</th>
+                    <th>Category</th>
+                    <th>Sentiment</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if data.feedbacks %}
+                    {% for f in data.feedbacks %}
+                    <tr>
+                        <td class="text-muted fw-semibold">#{{ f.id }}</td>
+                        <td>
+                            <span class="star-display">
+                                {% for _ in range(f.rating) %}★{% endfor %}
+                            </span>
+                        </td>
+                        <td style="max-width: 340px;">
+                            <div class="fw-medium text-dark text-truncate">{{ f.feedback_text }}</div>
+                            {% if f.summary %}
+                            <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ f.summary }}</small>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ f.category }}</span></td>
+                        <td>
+                            {% if f.sentiment == 'positive' %}
+                                <span class="badge badge-positive">Positive</span>
+                            {% elif f.sentiment == 'negative' %}
+                                <span class="badge badge-negative">Negative</span>
+                            {% else %}
+                                <span class="badge badge-neutral">Neutral</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge {{ f.status | status_badge }}">{{ f.status | replace('_', ' ') | capitalize }}</span></td>
+                        <td class="small text-muted">{{ f.created_at | datetime }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="empty-state-box">
+                                <div class="empty-icon-circle"><i class="bi bi-inbox"></i></div>
+                                <h6 class="fw-bold text-dark">You haven't submitted any feedback yet</h6>
+                                <p class="text-muted small">Share your thoughts on our products or services anytime.</p>
+                                <a href="{{ url_for('feedback.submit') }}" class="btn btn-primary btn-sm mt-2">Submit Feedback</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    {% if data.total_pages > 1 %}
+    <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="small text-muted">Showing {{ data.feedbacks | length }} of {{ data.total }} submissions</span>
+        <nav aria-label="Personal feedbacks pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if not data.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('feedback.my_feedbacks', page=data.prev_num) }}">Previous</a>
+                </li>
+                {% for p in range(1, data.total_pages + 1) %}
+                <li class="page-item {% if p == data.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('feedback.my_feedbacks', page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if not data.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('feedback.my_feedbacks', page=data.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

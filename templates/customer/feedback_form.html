@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Customer Feedback &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+        <div class="card card-3d p-4 p-md-5 border-0 shadow-sm">
+            <div class="mb-4">
+                <span class="badge bg-primary-subtle text-primary mb-2">Customer Voice</span>
+                <h2 class="fw-bold text-dark mb-1">Share Your Experience</h2>
+                <p class="text-secondary small">
+                    Your feedback helps us continuously elevate our services. Supported languages: <strong>English</strong>, <strong>தமிழ் (Tamil)</strong>, and <strong>Tanglish</strong>.
+                </p>
+            </div>
+
+            <!-- 1-Click Interactive Test Helpers -->
+            <div class="p-3 bg-light rounded-3 border mb-4">
+                <div class="small fw-bold text-muted mb-2">
+                    <i class="bi bi-magic me-1 text-primary"></i> Quick Evaluation Presets (Click to autofill):
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-success btn-sm" id="samplePosEng">
+                        👍 English Praise
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="sampleNegEng">
+                        ⚠️ English Urgent Complaint
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="sampleTamil">
+                        தமிழ் Native Tamil
+                    </button>
+                    <button type="button" class="btn btn-outline-warning text-dark btn-sm" id="sampleTanglish">
+                        Tanglish (Tamil-English)
+                    </button>
+                </div>
+            </div>
+
+            <form id="customerFeedbackForm" method="POST" action="{{ url_for('feedback.submit') }}">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="customer_name" class="form-label small">Your Name</label>
+                        <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ name or '' }}" placeholder="e.g. John Doe" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customer_email" class="form-label small">Email Address</label>
+                        <input type="email" class="form-control" id="customer_email" name="customer_email" value="{{ email or '' }}" placeholder="name@example.com" required>
+                    </div>
+                </div>
+
+                <!-- Star Rating Component -->
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <label class="form-label small d-block mb-1">Overall Satisfaction Rating</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" {% if rating == '5' or not rating %}checked{% endif %}>
+                            <label for="star5" title="5 stars - Delighted">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" {% if rating == '4' %}checked{% endif %}>
+                            <label for="star4" title="4 stars - Satisfied">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" {% if rating == '3' %}checked{% endif %}>
+                            <label for="star3" title="3 stars - Neutral">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" {% if rating == '2' %}checked{% endif %}>
+                            <label for="star2" title="2 stars - Unsatisfied">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" {% if rating == '1' %}checked{% endif %}>
+                            <label for="star1" title="1 star - Disappointed">★</label>
+                        </div>
+                        <span id="ratingLabel" class="small fw-semibold text-secondary">5 Stars - Delighted / Excellent</span>
+                    </div>
+                </div>
+
+                <!-- Product / Service Category -->
+                <div class="mb-4">
+                    <label for="categorySelect" class="form-label small">Product or Service Area</label>
+                    <select class="form-select" id="categorySelect" name="category">
+                        <option value="General" {% if category == 'General' %}selected{% endif %}>General Experience</option>
+                        <option value="Product Quality" {% if category == 'Product Quality' %}selected{% endif %}>Product Quality &amp; Reliability</option>
+                        <option value="Customer Support" {% if category == 'Customer Support' %}selected{% endif %}>Customer Support &amp; Help Desk</option>
+                        <option value="Billing/Pricing" {% if category == 'Billing/Pricing' %}selected{% endif %}>Billing, Checkout &amp; Pricing</option>
+                        <option value="Delivery/Speed" {% if category == 'Delivery/Speed' %}selected{% endif %}>Delivery Turnaround &amp; Logistics</option>
+                        <option value="Usability/UI" {% if category == 'Usability/UI' %}selected{% endif %}>Platform Usability, Web &amp; Mobile UI</option>
+                    </select>
+                </div>
+
+                <!-- Feedback Text Area -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="feedbackText" class="form-label small mb-0">Detailed Feedback</label>
+                        <span class="small text-muted" id="charCount">0 / 3000</span>
+                    </div>
+                    <textarea class="form-control" id="feedbackText" name="feedback_text" rows="5" placeholder="Share your experience or issue in English, தமிழ், or Tanglish..." required minlength="5" maxlength="3000">{{ feedback_text or '' }}</textarea>
+                </div>
+
+                <!-- Live AI Preview Telemetry Container -->
+                <div id="aiLivePreview" class="p-3 bg-light rounded-3 border mb-4 d-none">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold small text-primary d-flex align-items-center gap-1">
+                            <i class="bi bi-cpu-fill"></i> Real-Time NLP Diagnostics
+                        </span>
+                        <span id="prevLanguage" class="badge bg-secondary">English</span>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-4"><strong>Sentiment:</strong> <span id="prevSentiment" class="text-success">POSITIVE</span></div>
+                        <div class="col-4"><strong>Emotion:</strong> <span id="prevEmotion">JOY</span></div>
+                        <div class="col-4"><strong>Priority:</strong> <span id="prevPriority" class="text-primary">LOW</span></div>
+                        <div class="col-12 mt-2"><strong>Classified Category:</strong> <span id="prevCategory">Usability/UI</span></div>
+                        <div class="col-12 mt-1"><strong>AI Summary:</strong> <span id="prevSummary" class="text-muted">...</span></div>
+                        <div class="col-12 mt-1"><strong>Actionable Recommendation:</strong> <span id="prevRecommendation" class="text-muted">...</span></div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary px-4 py-2" id="submitFeedbackBtn">
+                        <i class="bi bi-send-fill me-1"></i> Submit Feedback
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary px-3 py-2" id="livePreviewBtn">
+                        <i class="bi bi-cpu me-1"></i> Preview AI Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Preset sample buttons
+document.getElementById('samplePosEng').addEventListener('click', function() {
+    document.getElementById('feedbackText').value = "The latest update is outstanding! The user interface is so clean, intuitive, and navigation is buttery smooth. Kudos to the engineering team.";
+    document.getElementById('star5').checked = true;
+    document.getElementById('categorySelect').value = "Usability/UI";
+    document.getElementById('feedbackText').dispatchEvent(new Event('input'));
+    document.getElementById('star5').dispatchEvent(new Event('change'));
+});
+
+document.getElementById('sampleNegEng').addEventListener('click', function() {
+    document.getElementById('feedbackText').value = "Money deducted twice during checkout and still got no confirmation email! Support team is not answering calls. Horrible experience, refund my money immediately!";
+    document.getElementById('star1').checked = true;
+    document.getElementById('categorySelect').value = "Billing/Pricing";
+    document.getElementById('feedbackText').dispatchEvent(new Event('input'));
+    document.getElementById('star1').dispatchEvent(new Event('change'));
+});
+
+document.getElementById('sampleTamil').addEventListener('click', function() {
+    document.getElementById('feedbackText').value = "வாடிக்கையாளர் சேவை மிகவும் அருமை. என் பிரச்சனைக்கு உடனடியாக தீர்வு கிடைத்தது. நன்றி!";
+    document.getElementById('star5').checked = true;
+    document.getElementById('categorySelect').value = "Customer Support";
+    document.getElementById('feedbackText').dispatchEvent(new Event('input'));
+    document.getElementById('star5').dispatchEvent(new Event('change'));
+});
+
+document.getElementById('sampleTanglish').addEventListener('click', function() {
+    document.getElementById('feedbackText').value = "App romba slow-va irukku. Login panna 2 minutes aaguthu. Please fix this bug quickly.";
+    document.getElementById('star2').checked = true;
+    document.getElementById('categorySelect').value = "Usability/UI";
+    document.getElementById('feedbackText').dispatchEvent(new Event('input'));
+    document.getElementById('star2').dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %}

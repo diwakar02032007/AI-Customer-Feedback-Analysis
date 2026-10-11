@@ -1,0 +1,11 @@
+feedback_id,customer_name,feedback_text,rating,sentiment,category,priority,emotion,language
+1,Alice Johnson,"The product arrived earlier than anticipated and exceeded my quality expectations.",5,positive,Delivery/Speed,low,joy,English
+2,Bob Williams,"The subscription price was auto-debited without sending renewal notification first.",1,negative,Billing/Pricing,high,anger,English
+3,Charlie Brown,"Helpful customer support agent helped recover my deleted file within 10 minutes.",5,positive,Customer Support,low,joy,English
+4,Deepa Raman,"Intha application romba nalla irukku. Easy to use and visually clean.",5,positive,Usability/UI,low,joy,Tanglish
+5,Elango Selvan,"Server crash aagite irukku. En data ellam poirumo nu bayama irukku.",1,negative,Product Quality,critical,fear,Tanglish
+6,Farhan Akhtar,"Standard quality materials, nothing impressive but works as advertised.",3,neutral,Product Quality,low,neutral,English
+7,Geetha Balan,"விநியோகம் மிக தாமதம். வாடிக்கையாளர் உதவி எண்ணில் யாரும் தொடர்பு கொள்ளவில்லை.",1,negative,Delivery/Speed,high,anger,Tamil
+8,Hari Prasad,"Fantastic user experience and clean dashboard design. Kudos!",5,positive,Usability/UI,low,joy,English
+9,Ishaan Verma,"App crashes frequently on Android 14 during checkout process.",2,negative,Usability/UI,high,anger,English
+10,Janani Natarajan,"பயன்பாடு மிக அருமை. மிக்க மகிழ்ச்சி.",5,positive,General,low,joy,Tamil

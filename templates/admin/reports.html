@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Reports &amp; Data Exports &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="page-greeting-banner mb-3">
+    <div>
+        <h1 class="page-title">Executive Reports &amp; Data Exports</h1>
+        <p class="page-subtitle">Generate scheduled audit snapshots, print executive briefs, or export raw telemetry datasets.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print / PDF
+        </button>
+        <a href="{{ url_for('report.export_csv') }}" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Full CSV
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Generate Report Card -->
+    <div class="col-lg-5">
+        <div class="card card-3d p-4 h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-file-earmark-plus text-primary me-2"></i>Generate Snapshot Report</h6>
+            <form method="POST" action="{{ url_for('report.generate_report') }}">
+                <div class="mb-3">
+                    <label for="report_title" class="form-label small fw-semibold">Report Title</label>
+                    <input type="text" class="form-control" id="report_title" name="report_title" placeholder="e.g. Monthly Executive CSAT Audit" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="report_type" class="form-label small fw-semibold">Report Schedule Cadence</label>
+                    <select class="form-select" id="report_type" name="report_type">
+                        <option value="Daily Report">Daily Telemetry Brief</option>
+                        <option value="Weekly Report">Weekly Operational Digest</option>
+                        <option value="Monthly Report" selected>Monthly Executive Audit</option>
+                        <option value="Custom Report">Custom Multi-Department Scope</option>
+                    </select>
+                </div>
+
+                <!-- Scope KPI Metrics -->
+                <div class="p-3 bg-light rounded-3 border mb-4 small">
+                    <span class="text-uppercase fw-bold text-muted small d-block mb-2" style="font-size: 0.7rem;">Current Telemetry Scope:</span>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Total Submissions:</span>
+                        <strong class="text-dark">{{ kpis.total_feedback }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Average Rating:</span>
+                        <strong class="text-warning">★ {{ kpis.avg_rating }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Customer Satisfaction:</span>
+                        <strong class="text-success">{{ kpis.csat_score }}% CSAT</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Active Escalations:</span>
+                        <strong class="text-danger">{{ kpis.high_priority_complaints }}</strong>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                    <i class="bi bi-file-earmark-check me-1"></i> Generate &amp; Save Snapshot
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Export Info Box -->
+    <div class="col-lg-7">
+        <div class="card card-3d p-4 h-100 bg-light border-0 shadow-sm d-flex flex-column justify-content-between">
+            <div>
+                <span class="badge bg-success-subtle text-success mb-2">Automated Data Pipeline</span>
+                <h5 class="fw-bold text-dark mb-2">Raw Dataset CSV Export for BI &amp; Analytics</h5>
+                <p class="text-secondary small mb-3" style="line-height: 1.6;">
+                    Download the complete database of customer feedback records enriched with end-to-end AI classifications, 
+                    exact sentiment polarity scores (-1.00 to +1.00), detected affective emotions, aspect tags, spam probabilities, and administrative resolution notes.
+                </p>
+                <div class="d-flex flex-wrap gap-2 text-muted small mb-4">
+                    <span class="badge bg-white text-dark border"><i class="bi bi-check2 text-success me-1"></i> RFC 4180 CSV Compliant</span>
+                    <span class="badge bg-white text-dark border"><i class="bi bi-check2 text-success me-1"></i> Multi-language Unicode Safe</span>
+                    <span class="badge bg-white text-dark border"><i class="bi bi-check2 text-success me-1"></i> PowerBI &amp; Tableau Ready</span>
+                </div>
+            </div>
+
+            <div>
+                <a href="{{ url_for('report.export_csv') }}" class="btn btn-success px-4 fw-semibold">
+                    <i class="bi bi-download me-2"></i> Download Full CSV Dataset
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Generated Reports Table -->
+<div class="card card-3d border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Generated Executive Report Archive</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th># ID</th>
+                    <th>Report Title</th>
+                    <th>Cadence Type</th>
+                    <th>Volume Analyzed</th>
+                    <th>Avg Rating</th>
+                    <th>Created On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if data.reports %}
+                    {% for r in data.reports %}
+                    <tr>
+                        <td class="text-muted fw-semibold">#{{ r.id }}</td>
+                        <td class="fw-bold text-dark">{{ r.report_title }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ r.report_type }}</span></td>
+                        <td>{{ r.total_feedbacks }} items</td>
+                        <td><span class="star-display">★ {{ "%.1f"|format(r.avg_rating or 0) }}</span></td>
+                        <td class="small text-muted">{{ r.created_at | datetime }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="empty-state-box">
+                                <div class="empty-icon-circle"><i class="bi bi-file-earmark-text"></i></div>
+                                <h6 class="fw-bold text-dark">No historical reports archived yet</h6>
+                                <p class="text-muted small">Generate your first audit snapshot using the generator above.</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    {% if data.total_pages > 1 %}
+    <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="small text-muted">Showing {{ data.reports | length }} of {{ data.total }} snapshots</span>
+        <nav aria-label="Reports pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if not data.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.list_reports', page=data.prev_num) }}">Previous</a>
+                </li>
+                {% for p in range(1, data.total_pages + 1) %}
+                <li class="page-item {% if p == data.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.list_reports', page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if not data.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.list_reports', page=data.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Activity Audit Trail & System Log -->
+<div class="card card-3d border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold text-dark mb-0">
+            <i class="bi bi-shield-check text-primary me-2"></i>Security &amp; Operational Audit Trail
+        </h6>
+        <span class="badge bg-light text-muted border">Live Activity Feed</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User / Actor</th>
+                    <th>Action Event</th>
+                    <th>Audit Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if activity_logs %}
+                    {% for log in activity_logs %}
+                    <tr>
+                        <td class="small text-muted text-nowrap">{{ log.created_at | datetime }}</td>
+                        <td>
+                            <div class="fw-semibold text-dark small">{{ log.user_name or 'System Worker' }}</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ log.user_email or 'system@local' }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td class="small text-secondary">{{ log.details or 'Action logged.' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted small">
+                            No security audit logs recorded yet.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

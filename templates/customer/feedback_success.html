@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback Submitted &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-lg-8">
+        <div class="card card-3d p-4 p-md-5 border-0 shadow-sm text-center">
+            <!-- Success Icon -->
+            <div class="mb-3">
+                <div class="avatar-initials bg-success-subtle text-success mx-auto" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+            </div>
+
+            <h2 class="fw-bold text-dark mb-1">Feedback Submitted Successfully</h2>
+            <p class="text-secondary mb-4">
+                Thank you for helping us improve. Your submission <strong>#{{ feedback_id }}</strong> has been analyzed by our local AI pipeline and routed to operations.
+            </p>
+
+            <!-- AI Telemetry Summary Card -->
+            <div class="card text-start p-4 bg-light border-0 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold text-dark small d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu-fill text-primary"></i> Automated Natural Language Telemetry
+                    </span>
+                    <span class="badge bg-secondary">{{ feedback.language }}</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-3">
+                        <small class="text-muted d-block">Sentiment</small>
+                        <span class="{{ feedback.sentiment | sentiment_badge }} mt-1">{{ feedback.sentiment | upper }}</span>
+                        <div class="small text-muted mt-1">Score: {{ feedback.sentiment_score }}</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <small class="text-muted d-block">Emotion</small>
+                        <div class="fw-semibold text-dark mt-1">{{ feedback.emotion | emotion_icon }}</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <small class="text-muted d-block">Category</small>
+                        <span class="badge bg-white text-dark border mt-1">{{ feedback.category }}</span>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <small class="text-muted d-block">Priority</small>
+                        <span class="{{ feedback.priority | priority_badge }} mt-1">{{ feedback.priority | upper }}</span>
+                    </div>
+
+                    <div class="col-12 mt-3 pt-3 border-top">
+                        <small class="text-muted d-block mb-1">AI Executive Summary</small>
+                        <p class="small text-dark mb-2 fw-medium">{{ feedback.summary }}</p>
+                    </div>
+
+                    <div class="col-12">
+                        <small class="text-muted d-block mb-1">Business Recommendation</small>
+                        <div class="small p-3 bg-white rounded-3 border border-start border-3 border-success">
+                            {{ feedback.recommendation }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ url_for('feedback.submit') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Submit Another Feedback
+                </a>
+                {% if is_authenticated %}
+                <a href="{{ url_for('feedback.my_feedbacks') }}" class="btn btn-primary">
+                    <i class="bi bi-clock-history me-1"></i> View My History
+                </a>
+                {% else %}
+                <a href="{{ url_for('customer.home') }}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i> Return to Home
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

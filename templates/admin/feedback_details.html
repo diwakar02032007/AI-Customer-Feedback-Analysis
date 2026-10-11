@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback #{{ feedback.id }} Intelligence &bull; InsightAI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <a href="{{ url_for('feedback.admin_feedbacks') }}" class="text-muted small text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> Back to Feedback Directory
+        </a>
+        <h1 class="page-title mt-1 mb-0">Feedback Ticket #{{ feedback.id }}</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <form method="POST" action="{{ url_for('feedback.admin_delete_feedback', feedback_id=feedback.id) }}" onsubmit="return confirm('Permanently delete this customer feedback record? This action will be logged in the audit trail.');">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i> Delete Record
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Customer Context & Content -->
+    <div class="col-lg-7">
+        <!-- Customer Info Card -->
+        <div class="card card-3d p-4 mb-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-person-circle text-primary me-2"></i>Customer Profile</h6>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <span class="text-muted small d-block">Customer Name</span>
+                    <div class="fw-bold text-dark mt-1">{{ feedback.customer_name }}</div>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted small d-block">Email Address</span>
+                    <div class="fw-medium text-dark mt-1">{{ feedback.customer_email }}</div>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted small d-block">Submission Timestamp</span>
+                    <div class="text-secondary small mt-1">{{ feedback.created_at | datetime }}</div>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted small d-block">Customer Rating</span>
+                    <div class="star-display mt-1">★ {{ feedback.rating }} / 5.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw Feedback Content -->
+        <div class="card card-3d p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-dark mb-0"><i class="bi bi-chat-quote-fill text-primary me-2"></i>Customer Voice (Raw Feedback)</h6>
+                <span class="badge bg-secondary-subtle text-secondary">{{ feedback.language }}</span>
+            </div>
+            <div class="p-3 bg-light rounded-3 border text-dark mt-2" style="font-size: 1rem; line-height: 1.65;">
+                "{{ feedback.feedback_text }}"
+            </div>
+        </div>
+
+        <!-- Resolution & Workflow Card -->
+        <div class="card card-3d p-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-sliders text-primary me-2"></i>Status &amp; Operations Management</h6>
+            <form method="POST" action="{{ url_for('feedback.admin_update_feedback', feedback_id=feedback.id) }}">
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="status" class="form-label small fw-semibold">Review Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="new" {% if feedback.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="under_review" {% if feedback.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                            <option value="resolved" {% if feedback.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            <option value="spam" {% if feedback.status == 'spam' %}selected{% endif %}>Flagged as Spam</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="priority" class="form-label small fw-semibold">Priority Severity</label>
+                        <select class="form-select" id="priority" name="priority">
+                            <option value="low" {% if feedback.priority == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if feedback.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if feedback.priority == 'high' %}selected{% endif %}>High</option>
+                            <option value="critical" {% if feedback.priority == 'critical' %}selected{% endif %}>Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="admin_notes" class="form-label small fw-semibold">Internal Operational Notes</label>
+                    <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Document resolution actions taken, customer outreach notes, or bug tracker links...">{{ feedback.admin_notes or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                    <i class="bi bi-check-circle me-1"></i> Save Updates &amp; Log Action
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: AI Pipeline Diagnostics -->
+    <div class="col-lg-5">
+        <div class="card card-3d p-4 mb-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-cpu-fill text-primary me-2"></i>AI Natural Language Telemetry</h6>
+
+            <div class="row g-3 pb-3 border-bottom">
+                <div class="col-6">
+                    <span class="text-muted small d-block">Sentiment Polarity</span>
+                    {% if feedback.sentiment == 'positive' %}
+                        <span class="badge badge-positive mt-1">POSITIVE</span>
+                    {% elif feedback.sentiment == 'negative' %}
+                        <span class="badge badge-negative mt-1">NEGATIVE</span>
+                    {% else %}
+                        <span class="badge badge-neutral mt-1">NEUTRAL</span>
+                    {% endif %}
+                    <div class="small text-muted mt-1">
+                        Score: <strong>{{ "%.2f"|format(feedback.sentiment_score or 0.0) }}</strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <span class="text-muted small d-block">Detected Emotion</span>
+                    <div class="fw-bold text-dark mt-1">{{ feedback.emotion | emotion_icon }}</div>
+                </div>
+            </div>
+
+            <div class="row g-3 py-3 border-bottom">
+                <div class="col-6">
+                    <span class="text-muted small d-block">Category</span>
+                    <span class="badge bg-light text-dark border mt-1">{{ feedback.category }}</span>
+                </div>
+                <div class="col-6">
+                    <span class="text-muted small d-block">Priority Level</span>
+                    {% if feedback.priority == 'critical' %}
+                        <span class="badge badge-critical mt-1">CRITICAL</span>
+                    {% elif feedback.priority == 'high' %}
+                        <span class="badge badge-high mt-1">HIGH</span>
+                    {% elif feedback.priority == 'medium' %}
+                        <span class="badge badge-medium mt-1">MEDIUM</span>
+                    {% else %}
+                        <span class="badge badge-low mt-1">LOW</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="py-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small">Spam Risk Evaluation</span>
+                    <span class="badge {% if feedback.is_spam %}bg-danger{% else %}bg-success-subtle text-success{% endif %}">
+                        {{ "%.0f"|format(feedback.spam_probability * 100) }}% ({{ 'Flagged Spam' if feedback.is_spam else 'Legitimate' }})
+                    </span>
+                </div>
+            </div>
+
+            <!-- Granular Aspect Breakdown -->
+            <div class="pt-3">
+                <span class="text-muted small d-block mb-2 fw-semibold">Aspect-Based Sentiment Breakdown</span>
+                {% if aspects %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for a in aspects %}
+                        <div class="p-2 bg-light rounded border small flex-grow-1">
+                            <div class="fw-semibold text-dark">{{ a.aspect_name }}</div>
+                            <span class="{{ a.sentiment | sentiment_badge }} mt-1 d-inline-block">{{ a.sentiment }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="small text-muted">Primary Aspect: <strong>{{ feedback.aspect or 'General Experience' }}</strong></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Executive Summary Card -->
+        <div class="card card-3d p-4 mb-4 border-start border-3 border-primary">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-file-text text-primary me-2"></i>AI Executive Summary</h6>
+            <p class="small text-dark mb-0 fw-medium" style="line-height: 1.6;">{{ feedback.summary or 'Summary not available.' }}</p>
+        </div>
+
+        <!-- AI Business Recommendation Card -->
+        <div class="card card-3d p-4 border-start border-3 border-success">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-lightbulb-fill text-success me-2"></i>Actionable AI Recommendation</h6>
+            <p class="small text-dark mb-0 fw-medium" style="line-height: 1.6;">{{ feedback.recommendation or 'Recommendation not available.' }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
